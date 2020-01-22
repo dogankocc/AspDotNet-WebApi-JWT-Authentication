@@ -1,0 +1,150 @@
+﻿@{ 
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Page</title>
+    <link rel="stylesheet" type="text/css" href="~/Content/style.css">
+
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!--Bootsrap 4 CDN-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+    <!--Fontawesome CDN-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <!--
+
+    <link href="~/Content/bootstrap-4-1-1.min.css" rel="stylesheet" id="bootstrap-css">
+    <link rel="stylesheet" href="~/Content/bootstrap-4-1-3.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="~/Content/all.min.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <script src="~/Content/js/bootstrap.min.js"></script>
+    <script src="~/Content/js/jquery.min.js"></script>
+    -->
+
+</head>
+<body>
+    <div class="container">
+        <div class="d-flex justify-content-center h-100">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Sign In</h3>
+                    <div class="d-flex justify-content-end social_icon">
+                        <span><i class="fab fa-facebook-square"></i></span>
+                        <span><i class="fab fa-google-plus-square"></i></span>
+                        <span><i class="fab fa-twitter-square"></i></span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div>
+                        <div class="input-group form-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            </div>
+                            <input id="username" type="text" class="form-control" placeholder="username">
+
+                        </div>
+                        <div class="input-group form-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                            </div>
+                            <input id="password" type="password" class="form-control" placeholder="password">
+                        </div>
+                        <div class="row align-items-center remember">
+                            <input type="checkbox">Remember Me
+                        </div>
+                        <div class="form-group">
+                            <input type="button" value="Login" class="btn float-right login_btn" onclick="submit(event)">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-center links">
+                        Don't have an account?<a href="#">Sign Up</a>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <a href="#">Forgot your password?</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function submit(event) {
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+            //if (username.length === 0 || password.length === 0) return;
+
+            var clientId = null;
+            var clientSecret = null;
+            //var formData = new FormData();
+            //formData.append("ClientName", "Login");
+            var request0 = new XMLHttpRequest();
+            request0.open('POST', "http://localhost:49996/api/userapi/PostClientIdentityWithJson", true);
+            //request0.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+            request0.setRequestHeader('Content-Type', 'application/json');
+            request0.setRequestHeader('Access-Control-Allow-Origin', '*');
+            //request0.setRequestHeader('Accept', 'application/json');
+            request0.setRequestHeader('Accept', '*/*');
+            //request0.send(formData);
+            request0.send(JSON.stringify({ ClientName: "Login" }));
+
+            request0.onreadystatechange = function () {
+                if (request0.readyState === 4) {
+                    var response = JSON.parse(request0.responseText);
+                    clientId = response.ClientID;
+                    clientSecret = response.ClientSecret;
+                    alert("response by PostClientIdentityWithJson:  " + clientId + "  " + clientSecret)
+                    if (clientId != null && clientSecret != null) {
+                        var request = new XMLHttpRequest();
+
+                        request.open('POST', "http://localhost:49996/api/requesttoken/CreateToken", true);
+                        request.setRequestHeader('Content-Type', 'application/json');
+                        request.setRequestHeader('Access-Control-Allow-Origin', '*');
+                        request.setRequestHeader('Accept', '*/*');
+                        //you could put this.username and this.password in here
+                        if (username.length !== 0 && password.length !== 0)
+                            request.send(JSON.stringify({ UserName: username, UserPassword: password, ClientID: clientId }));
+                        else
+                            request.send(JSON.stringify({ UserName: "Anurag", UserPassword: "123456", ClientID: clientId }));
+
+                        request.onreadystatechange = function () {
+                            if (request.readyState === 4 && request.readyState === XMLHttpRequest.DONE && request.status === 200) {
+                                var authToken = (request.responseText)
+                                console.log(authToken.length)
+                                console.log(authToken)
+                                authToken = authToken.replace('"', '');
+                                authToken = authToken.replace('"', '');
+                                console.log(authToken.length)
+                                console.log(authToken)
+                                var requestAccessToken = new XMLHttpRequest();
+
+                                requestAccessToken.open('GET', "http://localhost:49996/api/userapi/RedirectToHome", true);
+                                requestAccessToken.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+                                requestAccessToken.setRequestHeader('Access-Control-Allow-Origin', '*');
+                                requestAccessToken.setRequestHeader('Accept', '*/*');
+                                requestAccessToken.setRequestHeader('Authorization', 'Bearer ' + authToken);
+
+                                requestAccessToken.send();
+                                requestAccessToken.onreadystatechange = () => {
+                                    if (requestAccessToken.readyState === XMLHttpRequest.DONE && request.status === 200 && requestAccessToken.getResponseHeader('FORCE_REDIRECT') !== null) {
+                                        console.log("was good");
+                                        document.cookie = "user&" + authToken;
+                                        window.location = requestAccessToken.getResponseHeader('FORCE_REDIRECT');
+                                    }
+                                    else console.log("wasted")
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
